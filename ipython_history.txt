@@ -1,0 +1,330 @@
+
+# Captured on Windows 10 with Python 2.7.11 + IPython 5.1.0
+
+# This is the beginning of IPython history
+import angr
+
+# Load a the fauxware project
+project = angr.Project("fauxware/fauxware")
+project.loader.main_bin
+project.loader.main_object
+project.loader.all_objects
+project.loader.main_object.imports
+project.loader.main_object.sections
+type(project.loader.main_object.sections)
+project.loader.main_object.sections
+project.loader.main_object.sections.raw_list
+
+winproject = angr.Project("C:/Windows/System32/notepad.exe")  # it took a long time and did not finish, Yan had to ctrl-c it.
+
+winproject = angr.Project("C:/Windows/System32/notepad.exe", auto_load_libs=False)  # this finished very quickly
+winproject.loader.missing_dependencies
+winproject.loader.all_objects
+winproject.loader.main_object.imports
+winproject.loader.main_object.sections
+winproject.loader.main_object.sections.raw_list
+cfg = winproject.analyses.CFG()
+cfg = winproject.analyses.CFG(show_progressbar=True)
+len(cfg.nodes())
+cfg.nodes()
+cfg.graph
+cfg.graph.edges()
+winproject.kb
+winproject.kb.callgraph
+winproject.kb.callgraph.edges()
+[ map(hex, x) for x in winproject.kb.callgraph.edges() ]
+
+history  # Yan was demonstrating the "history" command in IPython
+
+winproject.kb
+winproject.kb.functions
+winproject.kb.functions[project.entry]
+winproject.kb.functions[winproject.entry]
+entry_function = winproject.kb.functions[winproject.entry]
+entry_function.graph
+entry_function.graph.edges()
+entry_function.blocks
+list(entry_function.blocks)
+entry_function.code_constants
+
+# Print out all blocks
+for block in entry_function.blocks: print block
+
+# Print out the disassembly of all blocks
+for block in entry_function.blocks: block.pp()
+
+# Print the VEX IR of all blocks
+for block in entry_function.blocks: block.vex.pp()
+
+block = winproject.factory.block(0x14001957e)
+block.pp()
+simgr = winproject.factory.simulation_manager()
+simgr
+simgr.active[0]
+simgr.active[0].regs.rax
+simgr.active[0].regs.rcx
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.active[0]
+simgr.step()
+simgr.active[0]
+cfg.get_any_node(0x141000730)
+cfg
+
+simgr = project.factory.simulation_manager()
+cfg = project.analyses.CFG(show_progressbar=True)
+
+simgr.step()
+simgr.active[0]
+simgr.step()
+simgr.active[0]
+cfg.get_any_node(0x400540)
+cfg.get_any_node(0x400540).successors
+simgr.step(until=lamda sm: len(sm.active) != 1)
+simgr.step(until=lambda sm: len(sm.active) != 1)
+simgr.active
+simgr.active[0].history
+simgr.active[0].history.bbl_addrs
+list(simgr.active[0].history.bbl_addrs)
+map(hex, list(simgr.active[0].history.bbl_addrs))
+project.loader.describe_addr(0x1000020)
+map(hex, list(simgr.active[0].history.descriptions))
+maplist(simgr.active[0].history.descriptions)
+list(simgr.active[0].history.descriptions)
+
+cfg.get_any_node(0x40068e)
+cfg.get_any_node(0x40068e).successors
+state = simgr.active[0]
+
+state.history
+state.history.actions
+list(state.history.actions)
+list(state.history.guards)
+list(state.history.jump_guards)
+list(simgr.active[0].history.jump_guards)
+list(simgr.active[1].history.jump_guards)
+
+simgr.active[0].rax
+simgr.active[0].regs.rax
+simgr.active[1].regs.rax
+state.memory.load(state.regs.rsp, 8)
+state.memory.load(state.regs.rsp, 8, endness="Iend_LE")
+
+state.posix.files
+stdin = state.posix.files[0]
+stdin.all_bytes()
+state.solver.eval(state.posix.files[0])
+state.solver.eval(state.posix.files[0].all_bytes())
+state.solver.eval(state.posix.files[0].all_bytes(), cast_to=str)
+state = simgr.active[1]
+state.solver.eval(state.posix.files[0].all_bytes(), cast_to=str)
+state.solver.eval_upto(state.posix.files[0].all_bytes(), 10, cast_to=str)
+stdin = state.posix.files[0]
+state = simgr.active[0]
+state.solver.eval_upto(state.posix.files[0].all_bytes(), 10, cast_to=str)
+state.posix.files[0]
+stdin.read_from
+stdin.read_from?
+stdin.read_pos?
+stdin.read?
+stdin.contents
+stdin.content
+stdin.content.load(10, 8)
+state.solver.eval_upto(stdin.content.load(9, 8), 10, cast_to=str)
+simgr.active
+simgr.mp_active
+simgr.mp_active.regs.rax
+simgr.mp_active.regs.rax.mp_items
+simgr.mp_active.solver.eval_upto(simgr.mp_active.files[0].content.load(9, 8), 1, cast_to=str)
+simgr.mp_active.solver.eval_upto(simgr.mp_active.posix.files[0].content.load(9, 8), 1, cast_to=str)
+simgr.mp_active.solver.eval_upto(simgr.mp_active.posix.files[0].content.load(9, 8), 1, cast_to=str).mp_items
+state.history.jump_guard
+
+state.history.jump_guard.op
+state.history.jump_guard.args
+state.history.jump_guard.args
+state.history.jump_guard.args[0]
+state.history.jump_guard.args[0]
+state.history.jump_guard.args[0] + 0
+simgr.run()
+
+simgr.mp_active.solver.eval_upto(simgr.mp_active.posix.files[0].content.load(9, 8), 2, cast_to=str).mp_items
+simgr.mp_deadended.solver.eval_upto(simgr.mp_deadended.posix.files[0].content.load(9, 8), 2, cast_to=str).mp_items
+simgr.mp_active.solver.eval_upto(simgr.mp_active.posix.files[1].all_bytes(), 2, cast_to=str).mp_items
+simgr.mp_deadended.solver.eval_upto(simgr.mp_deadended.posix.files[1].all_bytes(), 2, cast_to=str).mp_items
+simgr.mp_deadended.posix.files
+simgr.mp_deadended.posix.files.mp_items
+simgr.mp_deadended.solver.constraints
+simgr.mp_deadended.solver.jump_guards.mp_map(list)
+simgr.mp_deadended.history.jump_guards.mp_map(list)
+simgr.mp_deadended.history.jump_guards.mp_map(list).mp_items
+simgr = project.factory.simulation_manager()
+simgr
+
+cfg.functions
+cfg.functions.keys()
+project.loader.main_object.symbols_by_addr
+project.kb.functions['accepted']
+
+simgr.explore(find=project.kb.functions['accepted'].addr)
+simgr.found
+simgr.found.posix.dumps(0)
+simgr.found[0].posix.dumps(0)
+simgr = project.factory.simulation_manager()
+simgr
+
+simgr.use_technique(angr.exploration_techniques.DFS())
+# Use the DFS exploration technique
+simgr._hooks_all
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step(until=lambda sm: 'deferred' in simgr.stashes)
+simgr.step(until=lambda sm: 'deferred' in simgr.stashes)
+simgr.step(until=lambda sm: 'deferred' in sm.stashes)
+sm.deferred
+simgr.step(until=lambda sm: len(sm.deferred) != 0)
+simgr.step()
+simgr.step()
+simgr.step(until=lambda sm: len(sm.deferred) != 0)
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+def always_succeed(state): state.regs.rax = 1
+project.hook?
+project.hook(0x4007b9, always_succeed, length=0)
+
+simgr = project.factory.simulation_manager()
+simgr.run()
+simgr.mp_deadended
+simgr.mp_deadended.posix.dumps(1)
+simgr.mp_deadended.posix.dumps(1).mp_items
+class Return0(angr.SimProcedure): def run(state): return 0
+class Return0(angr.SimProcedure):
+    def run(self, state):
+        return 0
+project = angr.Project("fauxware/fauxware")
+project.hook(0x400664, Return0)
+project.hook(0x400664, Return0())
+project.hook(0x400664, Return0(), replace=True)
+simgr = project.factory.simulation_manager()
+simgr.run()
+simgr.deadended[0].posix.dumps(1)
+simgr.deadended[0].posix.dumps(0)
+simgr.deadended[0].posix.dumps(1)
+simgr = winproject.factory.simulation_manager()
+simgr.step(n=10)
+simgr = winproject.factory.simulation_manager()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+debug
+
+project = angr.Project("f:/angr/angr-doc/examples/whitehat_crypto400/whitehat_crypto400")
+project.loader.main_object
+project.loader.main_object.symbols_by_addr
+project.loader.main_object.imports
+project.loader.main_object
+project.loader.all_objects
+
+simgr = project.factory.simulation_manager()
+simgr.step(until=lambda sm=len(sm.active) >= 10)
+simgr.step(until=lambda sm:len(sm.active) >= 10)
+simgr.step(until=lambda sm:len(sm.active) >= 20)
+simgr.step(until=lambda sm:len(sm.active) >=100)
+simgr
+
+simgr.step(until=lambda sm:len(sm.active) >= 100)
+
+# Use DFS instead of BFS for symbolic exploration
+simgr.use_technique(angr.exploration_techniques.DFS())
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step()
+simgr.step(n=10)
+simgr.step(n=10)
+simgr.step(n=10)
+simgr.step(n=10)
+simgr.step(n=10)
+simgr.step(n=100)
+simgr.step(n=100)
+
+project
+project.kb
+project.kb.functions
+project.kb.functions.keys()
+cfg = project.analyses.CFG()
+project = angr.Project("fauxware/fauxware")
+cfg = project.analyses.CFG()
+project.kb.functions
+project.kb.functions.keys()
+project.kb.functions.values()
+project.kb.functions.values()[0]
+func = project.kb.functions.values()[0]
+func.name
+func.addr
+func.graph
